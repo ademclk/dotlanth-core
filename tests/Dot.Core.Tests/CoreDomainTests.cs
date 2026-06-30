@@ -55,4 +55,24 @@ public sealed class CoreDomainTests
                 && finding.Usage.Contains("key exchange", StringComparison.OrdinalIgnoreCase)));
         Assert.Contains(assets, asset => asset.MigrationStatus == MigrationStatus.Migrated);
     }
+
+    [Fact]
+    public void FindingRiskScoreContractCarriesExplainableInputs()
+    {
+        var findingScore = new FindingRiskScore(
+            "finding-api-ecdsa-token",
+            "asset-payments-api",
+            85,
+            RiskSeverity.Critical,
+            0.88m,
+            "Public partner API gateway",
+            "Seeded reason.",
+            "Seeded action.",
+            ["algorithm.quantumVulnerable=True"]);
+
+        Assert.Equal("finding-api-ecdsa-token", findingScore.FindingId);
+        Assert.Equal("asset-payments-api", findingScore.AssetId);
+        Assert.Equal(RiskSeverity.Critical, findingScore.Severity);
+        Assert.Contains("algorithm.quantumVulnerable=True", findingScore.Inputs);
+    }
 }

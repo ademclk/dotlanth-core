@@ -35,6 +35,22 @@ public sealed class CoreReadinessService(
             severityCounts);
     }
 
+    public IReadOnlyList<MigrationQueueItem> GetMigrationQueue()
+    {
+        return GetAssets()
+            .Where(asset => asset.Asset.MigrationStatus is not MigrationStatus.Migrated)
+            .OrderByDescending(asset => asset.RiskScore.Score)
+            .ThenBy(asset => asset.Asset.Id)
+            .Select(asset => new MigrationQueueItem(
+                asset.Asset.Id,
+                asset.Asset.Name,
+                asset.Owner.DisplayName,
+                asset.Asset.MigrationStatus,
+                asset.RiskScore,
+                asset.RiskScore.RecommendedAction))
+            .ToArray();
+    }
+
     public AssetRiskSummary? UpdateMigrationStatus(string assetId, MigrationStatus status, string? decisionNote)
     {
         var updated = store.UpdateMigrationStatus(assetId, status, decisionNote);
@@ -53,11 +69,12 @@ public sealed class CoreReadinessService(
                 asset.Owner.DisplayName,
                 asset.Asset.MigrationStatus,
                 asset.RiskScore,
+                asset.FindingRiskScores,
                 asset.Asset.Findings))
             .ToArray();
 
         return new EvidenceReport(
-            "dot-core-v26.1.0-readiness-report",
+            "dot-core-v26.2.0-readiness-report",
             ProductMetadata.Version,
             CoreDemoData.EvidenceGeneratedAt,
             GetSummary(),
@@ -65,7 +82,7 @@ public sealed class CoreReadinessService(
             store.GetDecisions(),
             [
                 "Seeded demo data only; no live scanner or external cryptographic inventory is connected.",
-                "Risk scores are deterministic heuristics for the v26.1.0 demo and not a compliance attestation.",
+                "Risk scores are deterministic heuristics for the v26.2.0 demo and not a compliance attestation.",
                 "Migration recommendations identify next actions but do not automatically remediate dependencies."
             ]);
     }
@@ -75,7 +92,11 @@ public sealed class CoreReadinessService(
         var owner = store.GetOwner(asset.OwnerId);
         var algorithms = store.GetAlgorithmsFor(asset);
         var riskScore = riskScoring.ScoreAsset(asset, algorithms);
+        var algorithmsById = algorithms.ToDictionary(algorithm => algorithm.Id);
+        var findingRiskScores = asset.Findings
+            .Select(finding => riskScoring.ScoreFinding(asset, finding, algorithmsById[finding.AlgorithmProfileId]))
+            .ToArray();
 
-        return new AssetRiskSummary(asset, owner, algorithms, riskScore);
+        return new AssetRiskSummary(asset, owner, algorithms, riskScore, findingRiskScores);
     }
 }

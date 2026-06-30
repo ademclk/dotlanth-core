@@ -72,11 +72,23 @@ public sealed record RiskScore(
     string RecommendedAction,
     IReadOnlyList<string> Inputs);
 
+public sealed record FindingRiskScore(
+    string FindingId,
+    string AssetId,
+    int Score,
+    RiskSeverity Severity,
+    decimal Confidence,
+    string AffectedSurface,
+    string Reason,
+    string RecommendedAction,
+    IReadOnlyList<string> Inputs);
+
 public sealed record AssetRiskSummary(
     Asset Asset,
     SystemOwner Owner,
     IReadOnlyList<AlgorithmProfile> Algorithms,
-    RiskScore RiskScore);
+    RiskScore RiskScore,
+    IReadOnlyList<FindingRiskScore> FindingRiskScores);
 
 public sealed record ReadinessSummary(
     string Version,
@@ -95,7 +107,16 @@ public sealed record EvidenceAsset(
     string Owner,
     MigrationStatus MigrationStatus,
     RiskScore RiskScore,
+    IReadOnlyList<FindingRiskScore> FindingRiskScores,
     IReadOnlyList<CryptographicFinding> Findings);
+
+public sealed record MigrationQueueItem(
+    string AssetId,
+    string AssetName,
+    string Owner,
+    MigrationStatus MigrationStatus,
+    RiskScore RiskScore,
+    string RecommendedAction);
 
 public sealed record EvidenceReport(
     string ReportId,

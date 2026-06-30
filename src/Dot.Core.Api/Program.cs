@@ -56,6 +56,8 @@ app.MapGet("/assets/{assetId}", (string assetId, CoreReadinessService readiness)
     return asset is null ? Results.NotFound() : Results.Ok(asset);
 })
 .WithName("GetCoreAsset");
+app.MapGet("/migration-queue", (CoreReadinessService readiness) => Results.Ok(readiness.GetMigrationQueue()))
+    .WithName("GetCoreMigrationQueue");
 app.MapPatch("/assets/{assetId}/migration-status", (
     string assetId,
     MigrationStatusUpdateRequest request,

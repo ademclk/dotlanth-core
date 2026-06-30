@@ -9,8 +9,7 @@ public sealed class ProductMetadataTests
     {
         Assert.Equal("dot-core", ProductMetadata.Product);
         Assert.Equal("Dot.Core.Api", ProductMetadata.ServiceName);
-        Assert.Equal("v26.1.0", ProductMetadata.Version);
+        Assert.Equal("v26.2.0", ProductMetadata.Version);
         Assert.Equal("/products/core", ProductMetadata.Route);
     }
 }
-

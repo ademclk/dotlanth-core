@@ -12,7 +12,7 @@ public sealed class CoreInventoryStore
         Algorithms = CoreDemoData.CreateAlgorithms();
         SeedAssets = CoreDemoData.CreateAssets();
         migrationStatuses = SeedAssets.ToDictionary(asset => asset.Id, asset => asset.MigrationStatus);
-        decisions.Add("Seeded demo inventory created for dot Core v26.1.0.");
+        decisions.Add("Seeded demo inventory created for dot Core v26.2.0.");
         decisions.Add("Risk scores are deterministic and derived from stored asset, finding, algorithm, and migration status inputs.");
     }
 
